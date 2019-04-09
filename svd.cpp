@@ -77,7 +77,7 @@ void SVD::fit(double **matrix, int r, int c, int n_factors, double lr, double re
 		}
 
 		if (!(it%5)){
-			cerr << "Interation " << it << endl;
+			cerr << "Epoch #" << it << endl;
 			cout << "MSE: " << sum/events.size() << endl;
 		}
 	}
@@ -96,6 +96,26 @@ double SVD::mse(vector<pair<pair<int,int>,double>> events){
 	}
 
 	return sum/events.size();
+}
+
+
+double SVD::mae(vector<pair<pair<int,int>,double>> events){
+	double sum = 0;
+
+	for(auto ev : events){
+		pair<int,int> ui = ev.first;
+		int u = ui.first, i = ui.second;
+		double rating = ev.second;
+
+		double error = rating - predict(u,i);
+		sum += fabs(error);
+	}
+
+	return sum/events.size();
+}
+
+double SVD::rmse(vector<pair<pair<int,int>,double>> events){
+	return sqrt(mse(events));
 }
 
 double SVD::predict(int user, int item){

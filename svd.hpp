@@ -38,5 +38,7 @@ public:
 	double* user_f(int user);
 	double* item_f(int item);
 	double mse(vector<pair<pair<int,int>,double>> events);
+	double mae(vector<pair<pair<int,int>,double>> events);
+	double rmse(vector<pair<pair<int,int>,double>> events);
 
 };

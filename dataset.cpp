@@ -26,6 +26,8 @@ void Dataset::load_ratings(string path, double train_test){
 	//discard header
 	getline(input_file,line);
 
+	map<int,int> count_users_items;
+
 	while(getline(input_file,line)){
 		int ii = line.find(":");
 		int ri = line.find(",");
@@ -36,8 +38,9 @@ void Dataset::load_ratings(string path, double train_test){
 		string rating = line.substr(ri+1,ti-ri-1);
 
 		if(users_encode_.find(user) == users_encode_.end()){
-			users_encode_[user] = n_users++;
+			users_encode_[user] = n_users;
 			users_.push_back(user);
+			count_users_items[n_users++] = 0;
 		}
 
 		if(items_encode_.find(item) == items_encode_.end()){
@@ -49,17 +52,28 @@ void Dataset::load_ratings(string path, double train_test){
 		int user_i = users_encode_[user];
 		int frating = stof(rating);
 
-		double test = double_rand(0,1);
+		
 
-		train_.push_back(make_pair(make_pair(user_i,item_i),frating));
+		count_users_items[user_i]++;
+
+		events_.push_back(make_pair(make_pair(user_i,item_i),frating));
 	}
 
 	init_ratings(n_users,n_items);
 
-	for(auto p : train_){
+	for(auto p : events_){
 		pair<int,int> ui = p.first;
 		double rating = p.second;
-		ratings_[ui.first][ui.second] = rating;
+		int user = ui.first, item = ui.second;
+
+		double test = double_rand(0,1);
+		if(train_test>test && count_users_items[user] > 3){
+			test_.push_back(p);
+			count_users_items[user]--;
+		}else{
+			train_.push_back(p);
+			ratings_[user][item] = rating;	
+		}
 	}
 
 	input_file.close();

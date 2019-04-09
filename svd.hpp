@@ -5,9 +5,9 @@ using namespace std;
 class SVD{
 
 private:
-	float **U_;
-	float **V_;
-	float lr_;
+	double **U_;
+	double **V_;
+	double lr_;
 	int f_;
 	int r_;
 	int c_;
@@ -29,12 +29,12 @@ public:
 		delete [] V_;
 	}
 
-	void fit(Dataset ds, int n_factors, float lr, int epochs);
-	void fit(float **matrix, int r, int c, int n_factors, float lr, int epochs);
-	float predict(int user, int factor);
-	float* predict(int user);
-	float* user_f(int user);
-	float* item_f(int item);
-	float mse(vector<pair<pair<int,int>,float>> events);
+	void fit(Dataset ds, int n_factors, double lr, int epochs);
+	void fit(double **matrix, int r, int c, int n_factors, double lr, int epochs);
+	double predict(int user, int factor);
+	double* predict(int user);
+	double* user_f(int user);
+	double* item_f(int item);
+	double mse(vector<pair<pair<int,int>,double>> events);
 
 };

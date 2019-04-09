@@ -9,9 +9,9 @@ using namespace std;
 class Dataset{
 
 private:
-	float **ratings_;
-	vector<pair<pair<int,int>,float>> train_;
-	vector<pair<pair<int,int>,float>> test_;
+	double **ratings_;
+	vector<pair<pair<int,int>,double>> train_;
+	vector<pair<pair<int,int>,double>> test_;
 	map<string,int> users_encode_;
 	map<string,int> items_encode_;
 	vector<string> users_;
@@ -27,7 +27,7 @@ public:
 
 	}
 
-	Dataset(string path, float train_test){
+	Dataset(string path, double train_test){
 		load_ratings(path, train_test);
 	}
 
@@ -38,14 +38,14 @@ public:
 		//delete [] ratings_;
 	}
 
-	void load_ratings(string path, float train_test);
-	float get_rating(string user,string item);
-	float* user_factor(int user);
-	float* item_factor(int item);
-	float** ratings();
+	void load_ratings(string path, double train_test);
+	double get_rating(string user,string item);
+	double* user_factor(int user);
+	double* item_factor(int item);
+	double** ratings();
 	int n_users();
 	int n_items();
-	vector<pair<pair<int,int>,float>> test();
-	vector<pair<pair<int,int>,float>> train();
+	vector<pair<pair<int,int>,double>> test();
+	vector<pair<pair<int,int>,double>> train();
 
 };

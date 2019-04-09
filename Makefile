@@ -1,7 +1,7 @@
 all: tp
 	
-tp: dataset.o svd.o main.o linalg.o
-	g++ dataset.o svd.o main.o linalg.o -o tp.out -lm -Wall -Wextra -std=c++1z -pedantic
+tp: dataset.o svd.o main.o linalg.o submission.o
+	g++ dataset.o svd.o main.o linalg.o submission.o -o tp.out -lm -Wall -Wextra -std=c++1z -pedantic
 
 main.o: main.cpp
 	g++ -c main.cpp -lm -Wall -Wextra -std=c++1z -pedantic
@@ -12,7 +12,7 @@ dataset.o: dataset.cpp dataset.hpp
 svd.o: svd.cpp svd.hpp
 	g++ -c svd.cpp -lm -Wall -Wextra -std=c++1z -pedantic
 
-submission.o: submission.cpp
+submission.o: submission.cpp submission.hpp
 	g++ -c submission.cpp -lm -Wall -Wextra -std=c++1z -pedantic
 
 linalg.o: linalg.cpp linalg.hpp

@@ -1,6 +1,8 @@
 #include "linalg.hpp"
 #include "svd.hpp"
 
+#include <cmath>
+#include <iostream>
 
 void SVD::init_ur(int r, int c, int f){
 	U_ = new double*[r];
@@ -78,7 +80,7 @@ void SVD::fit(double **matrix, int r, int c, int n_factors, double lr, double re
 
 		if (!(it%5)){
 			cerr << "Epoch #" << it << endl;
-			cout << "MSE: " << sum/events.size() << endl;
+			cerr << "MSE: " << sum/events.size() << endl;
 		}
 	}
 }

@@ -1,5 +1,3 @@
-#include <cmath>
-
 #include "dataset.hpp"
 
 using namespace std;

@@ -1,6 +1,9 @@
 #include "dataset.hpp"
 #include "linalg.hpp"
 
+#include <fstream>
+#include <iostream>
+
 void Dataset::init_ratings(int r, int c){
 	ratings_ = new double*[r];
 	for (int i=0; i<r; i++){
@@ -79,11 +82,6 @@ void Dataset::load_ratings(string path, double train_test){
 	input_file.close();
 }
 
-double Dataset::get_rating(string user,string item){
-	int ui = users_encode_[user];
-	int ii = items_encode_[item];
-	return ratings_[ui][ii];
-}
 
 double** Dataset::ratings(){
 	return ratings_;
@@ -95,6 +93,14 @@ int Dataset::n_users(){
 
 int Dataset::n_items(){
 	return n_items_;
+}
+
+int Dataset::encode_user(string user){
+	return users_encode_[user];
+}
+
+int Dataset::encode_item(string item){
+	return items_encode_[item];
 }
 
 vector<pair<pair<int,int>,double>> Dataset::test(){

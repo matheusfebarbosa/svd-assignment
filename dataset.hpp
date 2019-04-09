@@ -1,7 +1,5 @@
 #include <map>
 #include <string>
-#include <fstream>
-#include <iostream>
 #include <vector>
 
 using namespace std;
@@ -39,10 +37,11 @@ public:
 	}
 
 	void load_ratings(string path, double train_test);
-	double get_rating(string user,string item);
 	double** ratings();
 	int n_users();
 	int n_items();
+	int encode_user(string user);
+	int encode_item(string item);
 	vector<pair<pair<int,int>,double>> test();
 	vector<pair<pair<int,int>,double>> train();
 

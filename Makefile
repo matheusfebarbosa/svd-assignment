@@ -1,7 +1,7 @@
 all: tp
 	
 tp: dataset.o svd.o main.o
-	g++ dataset.o svd.o main.o -o tp -Wall -Wextra -std=c++1z -pedantic
+	g++ dataset.o svd.o main.o -o tp.out -Wall -Wextra -std=c++1z -pedantic
 
 main.o: main.cpp
 	g++ -c main.cpp -Wall -Wextra -std=c++1z -pedantic
@@ -16,4 +16,4 @@ submission.o: submission.cpp
 	g++ -c submission.cpp -Wall -Wextra -std=c++1z -pedantic
 
 clean:
-	$(RM) *.o tp
+	$(RM) *.o tp.out

@@ -1,3 +1,5 @@
+all: tp
+	
 tp: dataset.o svd.o main.o
 	g++ dataset.o svd.o main.o -o tp -Wall -Wextra -std=c++1z -pedantic
 

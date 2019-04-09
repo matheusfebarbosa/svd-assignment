@@ -21,28 +21,27 @@ void SVD::init_ur(int r, int c, int f){
 void SVD::randomize(){
 	for (int i=0; i<r_; i++){
 		for (int j=0; j<f_; j++){
-			U_[i][j] = double_rand(-5,5);
+			U_[i][j] = double_rand(0,1);
 		}
 	}
 
 	for (int i=0; i<c_; i++){
 		for (int j=0; j<f_; j++){
-			V_[i][j] = double_rand(-5,5);
+			V_[i][j] = double_rand(0,1);
 		}
 	}
 }
 
-void SVD::fit(Dataset ds, int n_factors, double lr, int epochs){
-	fit(ds.ratings(), ds.n_users(), ds.n_items(), n_factors, lr, epochs);
+void SVD::fit(Dataset ds, int n_factors, double lr, double reg, int epochs){
+	fit(ds.ratings(), ds.n_users(), ds.n_items(), n_factors, lr, reg, epochs);
 }
 
-void SVD::fit(double **matrix, int r, int c, int n_factors, double lr, int epochs){
+void SVD::fit(double **matrix, int r, int c, int n_factors, double lr, double reg, int epochs){
 	init_ur(r,c,n_factors);
 	randomize();
 
-	lr *= 2;
-
 	vector<pair<int,int>> events;
+
 	for (int i = 0; i < r; i++){
 		for (int j = 0; j < c; j++){
 			if(matrix[i][j] != 0.0){
@@ -51,8 +50,7 @@ void SVD::fit(double **matrix, int r, int c, int n_factors, double lr, int epoch
 		}
 	}
 
-	while(epochs--){
-		cerr << "Interation " << epochs << endl;
+	for(int it = 0; it < epochs; it++){
 		double sum = 0;
 
 		for(auto ev : events){
@@ -60,18 +58,28 @@ void SVD::fit(double **matrix, int r, int c, int n_factors, double lr, int epoch
 			double error = matrix[i][j] - predict(i,j);
 			sum += error * error;
 
-			error *= lr;
+			double u_norm = 0;
+			double i_norm = 0;
+			for (int k = 0; k < f_; k++){
+				u_norm += U_[i][k];
+				i_norm += V_[j][k];
+			}
+
+			double reg_factor = reg * (fabs(u_norm) + fabs(i_norm));
 
 			for (int k = 0; k < f_; k++){
-				U_[i][k] += error * V_[j][k];
+				U_[i][k] += 2 * lr * (error + reg_factor) * V_[j][k];
 			}
 
 			for (int k = 0; k < f_; k++){
-				V_[j][k] += error * U_[i][k];
+				V_[j][k] += 2 * lr * (error + reg_factor) * U_[i][k];
 			}
 		}
 
-		cout << "MSE: " << sum/events.size() << endl;
+		if (!(it%5)){
+			cerr << "Interation " << it << endl;
+			cout << "MSE: " << sum/events.size() << endl;
+		}
 	}
 }
 

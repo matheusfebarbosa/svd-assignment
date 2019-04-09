@@ -5,6 +5,9 @@ void Dataset::init_ratings(int r, int c){
 	ratings_ = new double*[r];
 	for (int i=0; i<r; i++){
 		ratings_[i] = new double[c];
+		for (int j=0; j<c; j++){	
+			ratings_[i][j] = 0 ;
+		}
 	}
 
 	n_users_ = r;
@@ -66,14 +69,6 @@ double Dataset::get_rating(string user,string item){
 	int ui = users_encode_[user];
 	int ii = items_encode_[item];
 	return ratings_[ui][ii];
-}
-
-double* Dataset::user_factor(int user){
-	return ratings_[user];
-}
-
-double* Dataset::item_factor(int item){
-	return NULL;
 }
 
 double** Dataset::ratings(){

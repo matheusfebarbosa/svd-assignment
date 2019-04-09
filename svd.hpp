@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include "dataset.hpp"
 
 using namespace std;
@@ -29,8 +31,8 @@ public:
 		delete [] V_;
 	}
 
-	void fit(Dataset ds, int n_factors, double lr, int epochs);
-	void fit(double **matrix, int r, int c, int n_factors, double lr, int epochs);
+	void fit(Dataset ds, int n_factors, double lr, double reg, int epochs);
+	void fit(double **matrix, int r, int c, int n_factors, double lr, double reg, int epochs);
 	double predict(int user, int factor);
 	double* predict(int user);
 	double* user_f(int user);

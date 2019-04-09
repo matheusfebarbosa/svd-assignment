@@ -40,8 +40,6 @@ public:
 
 	void load_ratings(string path, double train_test);
 	double get_rating(string user,string item);
-	double* user_factor(int user);
-	double* item_factor(int item);
 	double** ratings();
 	int n_users();
 	int n_items();

@@ -5,16 +5,19 @@
 #include <iostream>
 #include <vector>
 
-#include "dataset.hpp"
+#include "svd.hpp"
 
 using namespace std;
 
 int main(){
 
-	Dataset ds("./dataset/ratings.csv");
+	Dataset ds("./dataset/ratings.csv",0.1);
+	SVD svd;
 
-	cout << ds.get_rating("u0026502","i0444778");
-	cout << ds.get_rating("u0024257","i0338013");
+	svd.fit(ds,10,0.001,100);
+
+	cout <<"Train: " << svd.mse(ds.train()) << endl;
+	//cout <<"Test: " << svd.mse(ds.test()) << endl;
 
 	return 0;
 }

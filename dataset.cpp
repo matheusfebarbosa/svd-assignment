@@ -1,4 +1,5 @@
 #include "dataset.hpp"
+#include "linalg.hpp"
 
 void Dataset::init_ratings(int r, int c){
 	ratings_ = new float*[r];
@@ -10,10 +11,10 @@ void Dataset::init_ratings(int r, int c){
 	n_items_ = c;
 }
 
-void Dataset::load_ratings(string path){
+void Dataset::load_ratings(string path, float train_test){
 	ifstream input_file;
 	string line;
-	vector<pair<pair<int,int>,float>> aux_data;
+	vector<pair<pair<int,int>,float>> events_;
 	int n_users = 0;
 	int n_items = 0;
 
@@ -45,12 +46,14 @@ void Dataset::load_ratings(string path){
 		int user_i = users_encode_[user];
 		int frating = stof(rating);
 
-		aux_data.push_back(make_pair(make_pair(user_i,item_i),frating));
+		float test = float_rand(0,1);
+
+		train_.push_back(make_pair(make_pair(user_i,item_i),frating));
 	}
 
 	init_ratings(n_users,n_items);
 
-	for(auto p : aux_data){
+	for(auto p : train_){
 		pair<int,int> ui = p.first;
 		float rating = p.second;
 		ratings_[ui.first][ui.second] = rating;
@@ -71,4 +74,24 @@ float* Dataset::user_factor(int user){
 
 float* Dataset::item_factor(int item){
 	return NULL;
+}
+
+float** Dataset::ratings(){
+	return ratings_;
+}
+
+int Dataset::n_users(){
+	return n_users_;
+}
+
+int Dataset::n_items(){
+	return n_items_;
+}
+
+vector<pair<pair<int,int>,float>> Dataset::test(){
+	return test_;
+}
+
+vector<pair<pair<int,int>,float>> Dataset::train(){
+	return train_;
 }

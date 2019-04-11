@@ -9,7 +9,3 @@ double dot_product(double *A, double *B, int n){
 
 	return prod;
 }
-
-double double_rand(double min, double max){
-    return ((double(rand()) / double(RAND_MAX)) * (max - min)) + min;
-}

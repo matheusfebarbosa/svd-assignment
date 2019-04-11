@@ -3,26 +3,13 @@
 
 #include <fstream>
 #include <iostream>
+#include <random>
 
-void Dataset::init_ratings(int r, int c){
-	ratings_ = new double*[r];
-	for (int i=0; i<r; i++){
-		ratings_[i] = new double[c];
-		for (int j=0; j<c; j++){	
-			ratings_[i][j] = 0 ;
-		}
-	}
-
-	n_users_ = r;
-	n_items_ = c;
-}
 
 void Dataset::load_ratings(string path, double train_test){
 	ifstream input_file;
 	string line;
 	vector<pair<pair<int,int>,double>> events_;
-	int n_users = 0;
-	int n_items = 0;
 
 	input_file.open(path);
 
@@ -41,13 +28,13 @@ void Dataset::load_ratings(string path, double train_test){
 		string rating = line.substr(ri+1,ti-ri-1);
 
 		if(users_encode_.find(user) == users_encode_.end()){
-			users_encode_[user] = n_users;
+			users_encode_[user] = n_users_;
 			users_.push_back(user);
-			count_users_items[n_users++] = 0;
+			count_users_items[n_users_++] = 0;
 		}
 
 		if(items_encode_.find(item) == items_encode_.end()){
-			items_encode_[item] = n_items++;
+			items_encode_[item] = n_items_++;
 			items_.push_back(item);
 		}
 
@@ -55,36 +42,26 @@ void Dataset::load_ratings(string path, double train_test){
 		int user_i = users_encode_[user];
 		int frating = stof(rating);
 
-		
-
 		count_users_items[user_i]++;
 
 		events_.push_back(make_pair(make_pair(user_i,item_i),frating));
 	}
 
-	init_ratings(n_users,n_items);
+	default_random_engine generator;
+  	bernoulli_distribution distribution(train_test);
 
 	for(auto p : events_){
-		pair<int,int> ui = p.first;
-		double rating = p.second;
-		int user = ui.first, item = ui.second;
-
-		double test = double_rand(0,1);
-		if(train_test>test && count_users_items[user] > 3){
+		int user = p.first.first;
+		
+		if(distribution(generator) && count_users_items[user] > 3){
 			test_.push_back(p);
 			count_users_items[user]--;
 		}else{
 			train_.push_back(p);
-			ratings_[user][item] = rating;	
 		}
 	}
 
 	input_file.close();
-}
-
-
-double** Dataset::ratings(){
-	return ratings_;
 }
 
 int Dataset::n_users(){
@@ -109,4 +86,19 @@ vector<pair<pair<int,int>,double>> Dataset::test(){
 
 vector<pair<pair<int,int>,double>> Dataset::train(){
 	return train_;
+}
+
+double Dataset::global_mean(){
+	if (global_mean_ == 0){
+		for(auto ev : train_){
+			global_mean_ += ev.second;
+		}
+		for(auto ev : test_){
+			global_mean_ += ev.second;
+		}
+
+		global_mean_ /= ((float)train_.size() + test_.size());
+	}
+
+	return global_mean_;
 }

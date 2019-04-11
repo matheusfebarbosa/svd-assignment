@@ -3,8 +3,9 @@
 
 #include <cmath>
 #include <iostream>
+#include <random>
 
-void SVD::init_ur(int r, int c, int f){
+void SVD::init_matrices(int r, int c, int f){
 	U_ = new double*[r];
 	for (int i=0; i<r; i++){
 		U_[i] = new double[f];
@@ -17,76 +18,81 @@ void SVD::init_ur(int r, int c, int f){
 
 	r_ = r;
 	c_ = c;
-	f_ = f;
 }
 
 void SVD::randomize(){
+
+	default_random_engine generator;
+	normal_distribution<double> distribution(1,0.5);
+
 	for (int i=0; i<r_; i++){
 		for (int j=0; j<f_; j++){
-			U_[i][j] = double_rand(0,1);
+			U_[i][j] = distribution(generator);
 		}
 	}
 
 	for (int i=0; i<c_; i++){
 		for (int j=0; j<f_; j++){
-			V_[i][j] = double_rand(0,1);
+			V_[i][j] = distribution(generator);
 		}
 	}
 }
 
-void SVD::fit(Dataset ds, int n_factors, double lr, double reg, int epochs){
-	fit(ds.ratings(), ds.n_users(), ds.n_items(), n_factors, lr, reg, epochs);
-}
-
-void SVD::fit(double **matrix, int r, int c, int n_factors, double lr, double reg, int epochs){
-	init_ur(r,c,n_factors);
+void SVD::fit(Dataset &ds){
+	init_matrices(ds.n_users(),ds.n_items(),f_);
 	randomize();
 
-	vector<pair<int,int>> events;
+	vector<double> user_bias(ds.n_users(),0);
+	vector<double> item_bias(ds.n_items(),0); 
 
-	for (int i = 0; i < r; i++){
-		for (int j = 0; j < c; j++){
-			if(matrix[i][j] != 0.0){
-				events.push_back(make_pair(i,j));
+	double acc_error;
+
+	for(int it = 0; it < epochs_; it++){
+		
+		acc_error = 0;
+
+		for(auto ev : ds.train()){
+			pair<int,int> ui = ev.first;
+			double real_rating = ev.second;
+			int u = ui.first, i = ui.second;
+
+			double error = real_rating - (predict(u,i) + user_bias[u] + item_bias[i]);
+			acc_error += error * error;
+
+			//update bias
+			//user_bias[u] += 0.5 * lr_ * (error - reg_ * user_bias[u]);
+			//item_bias[i] += 0.5 * lr_ * (error - reg_ * item_bias[i]);
+
+			// regularization by vector norm
+			// double u_norm = 0;
+			// double i_norm = 0;
+			// for (int k = 0; k < f_; k++){
+			// 	u_norm += U_[u][k] * U_[u][k];
+			// 	i_norm += V_[i][k] * V_[i][k];
+			// }
+			// u_norm = sqrt(u_norm);
+			// i_norm = sqrt(i_norm)
+
+			for (int k = 0; k < f_; k++){
+				double uuk = U_[u][k];
+				double vik = V_[i][k];
+				U_[u][k] += 2 * lr_ * (error * vik - reg_ * uuk) ;
+				V_[i][k] += 2 * lr_ * (error * uuk - reg_ * vik) ;
 			}
 		}
-	}
 
-	for(int it = 0; it < epochs; it++){
-		double sum = 0;
-
-		for(auto ev : events){
-			int i = ev.first, j = ev.second;
-			double error = matrix[i][j] - predict(i,j);
-			sum += error * error;
-
-			double u_norm = 0;
-			double i_norm = 0;
-			for (int k = 0; k < f_; k++){
-				u_norm += U_[i][k];
-				i_norm += V_[j][k];
-			}
-
-			double reg_factor = reg * (fabs(u_norm) + fabs(i_norm));
-
-			for (int k = 0; k < f_; k++){
-				U_[i][k] += 2 * lr * (error + reg_factor) * V_[j][k];
-			}
-
-			for (int k = 0; k < f_; k++){
-				V_[j][k] += 2 * lr * (error + reg_factor) * U_[i][k];
-			}
-		}
-
-		if (!(it%5)){
+		if (!(it%(epochs_/10))){
 			cerr << "Epoch #" << it << endl;
-			cerr << "MSE: " << sum/events.size() << endl;
+			cerr << "MSE: " << acc_error/ds.train().size() << endl;
 		}
 	}
+
+	cerr << "Final" << endl;
+	cerr << "MSE: " << acc_error/ds.train().size() << endl;
 }
 
 double SVD::mse(vector<pair<pair<int,int>,double>> events){
-	double sum = 0;
+	double acc_error = 0;
 
 	for(auto ev : events){
 		pair<int,int> ui = ev.first;
@@ -94,15 +100,15 @@ double SVD::mse(vector<pair<pair<int,int>,double>> events){
 		double rating = ev.second;
 
 		double error = rating - predict(u,i);
-		sum += error * error;
+		acc_error += error * error;
 	}
 
-	return sum/events.size();
+	return acc_error/events.size();
 }
 
 
 double SVD::mae(vector<pair<pair<int,int>,double>> events){
-	double sum = 0;
+	double acc_error = 0;
 
 	for(auto ev : events){
 		pair<int,int> ui = ev.first;
@@ -110,10 +116,10 @@ double SVD::mae(vector<pair<pair<int,int>,double>> events){
 		double rating = ev.second;
 
 		double error = rating - predict(u,i);
-		sum += fabs(error);
+		acc_error += fabs(error);
 	}
 
-	return sum/events.size();
+	return acc_error/events.size();
 }
 
 double SVD::rmse(vector<pair<pair<int,int>,double>> events){

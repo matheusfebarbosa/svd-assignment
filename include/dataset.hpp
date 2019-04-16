@@ -1,3 +1,6 @@
+#ifndef DATASET_H
+#define DATASET_H 
+
 #include <map>
 #include <string>
 #include <vector>
@@ -40,3 +43,5 @@ public:
 	vector<pair<pair<int,int>,double>> train();
 
 };
+
+#endif

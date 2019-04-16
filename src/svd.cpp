@@ -59,9 +59,9 @@ void SVD::fit(Dataset &ds){
 			double error = real_rating - (predict(u,i) + user_bias[u] + item_bias[i]);
 			acc_error += error * error;
 
-			//update bias
-			//user_bias[u] += 0.5 * lr_ * (error - reg_ * user_bias[u]);
-			//item_bias[i] += 0.5 * lr_ * (error - reg_ * item_bias[i]);
+			// update bias
+			// user_bias[u] += 0.5 * lr_ * (error - reg_ * user_bias[u]);
+			// item_bias[i] += 0.5 * lr_ * (error - reg_ * item_bias[i]);
 
 			// regularization by vector norm
 			// double u_norm = 0;

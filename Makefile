@@ -1,22 +1,35 @@
-all: tp
+CC=g++
+EXEC=$(PWD)/recommender
+RUNARGS=$(PWD)/dataset/ratings.csv $(PWD)/dataset/targets.csv > submission.csv
+BUILD=$(PWD)/build
+SRC=$(PWD)/src
+INCLUDE=$(PWD)/include
+CFLAGS=-lm -Wall -Wextra -std=c++1z -pedantic
+TARGETS=dataset.o svd.o main.o linalg.o submission.o
+INCLUDES=-I/usr/local/include -Ia -Ib -Ic -I$(INCLUDE)
+
+all: config tp
+
+run: all
+	$(EXEC) $(RUNARGS)
 	
-tp: dataset.o svd.o main.o linalg.o submission.o
-	g++ dataset.o svd.o main.o linalg.o submission.o -o tp.out -lm -Wall -Wextra -std=c++1z -pedantic
+config:
+	mkdir -p $(BUILD)
 
-main.o: main.cpp
-	g++ -c main.cpp -lm -Wall -Wextra -std=c++1z -pedantic
-
-dataset.o: dataset.cpp dataset.hpp
-	g++ -c dataset.cpp -lm -Wall -Wextra -std=c++1z -pedantic
-
-svd.o: svd.cpp svd.hpp
-	g++ -c svd.cpp -lm -Wall -Wextra -std=c++1z -pedantic
-
-submission.o: submission.cpp submission.hpp
-	g++ -c submission.cpp -lm -Wall -Wextra -std=c++1z -pedantic
-
-linalg.o: linalg.cpp linalg.hpp
-	g++ -c linalg.cpp -lm -Wall -Wextra -std=c++1z -pedantic
-
+tp: $(TARGETS)
+	$(CC) $(patsubst %,$(BUILD)/%,$(TARGETS)) -o $(EXEC) $(INCLUDES)
+main.o: $(SRC)/main.cpp
+	$(CC) -c $(SRC)/main.cpp -o  $(BUILD)/main.o $(CFLAGS) $(INCLUDES)
+dataset.o: $(SRC)/dataset.*
+	$(CC) -c $(SRC)/dataset.cpp -o $(BUILD)/dataset.o $(CFLAGS) $(INCLUDES)
+svd.o: $(SRC)/svd.*
+	$(CC) -c $(SRC)/svd.cpp -o $(BUILD)/svd.o $(CFLAGS) $(INCLUDES)
+submission.o: $(SRC)/submission.*
+	$(CC) -c $(SRC)/submission.cpp -o $(BUILD)/submission.o $(CFLAGS) $(INCLUDES)
+linalg.o: $(SRC)/linalg.*
+	$(CC) -c $(SRC)/linalg.cpp -o $(BUILD)/linalg.o $(CFLAGS) $(INCLUDES)
 clean:
-	$(RM) *.o tp.out
+	$(RM) -r $(BUILD) $(EXEC)
+
+
+.PHONY: config clean run

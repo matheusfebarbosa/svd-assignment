@@ -1,4 +1,10 @@
+#ifndef SVD_H
+#define SVD_H 
+
 #include "dataset.hpp"
+
+#include <vector>
+#include <utility>
 
 using namespace std;
 
@@ -50,3 +56,5 @@ public:
 	double rmse(vector<pair<pair<int,int>,double>> events);
 
 };
+
+#endif

@@ -1,6 +1,7 @@
 CC=g++
 EXEC=$(PWD)/recommender
 RUNARGS=$(PWD)/dataset/ratings.csv $(PWD)/dataset/targets.csv > submission.csv
+TESTARGS=$(PWD)/dataset/ratings.csv 
 BUILD=$(PWD)/build
 SRC=$(PWD)/src
 INCLUDE=$(PWD)/include
@@ -12,6 +13,9 @@ all: config tp
 
 run: all
 	$(EXEC) $(RUNARGS)
+
+test: all
+	$(EXEC) $(TESTARGS)
 	
 config:
 	mkdir -p $(BUILD)

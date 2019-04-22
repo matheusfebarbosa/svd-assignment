@@ -16,15 +16,22 @@ private:
 	double lr_;
 	double reg_;
 	int epochs_;
-	int f_;
-	int r_;
-	int c_;
+	unsigned int n_users_;
+	unsigned int n_items_;
+	unsigned int f_;
+	bool bias_;
+	vector<double> user_bias_;
+	vector<double> item_bias_;
+	double global_mean_;
 
-	void init_matrices(int r, int c, int f);
-	void randomize();
+	void init_matrices(unsigned int r, unsigned int c, unsigned int f);
+	void generate_global_mean(vector<pair<pair<int,int>,double>> events);
+	void generate_user_bias(vector<pair<pair<int,int>,double>> events);
+	void generate_item_bias(vector<pair<pair<int,int>,double>> events);
+	void randomize_matrices();
 
 public:
-	SVD(int n_factors, double lr, double reg, int epochs){
+	SVD(unsigned int n_factors, double lr, double reg, unsigned int epochs){
 		U_ = NULL;
 		V_ = NULL;
 		f_ = n_factors;
@@ -35,25 +42,28 @@ public:
 
 	~SVD(){
 		if (U_!=NULL){
-			for (int i = 0; i < r_; i++)
+			for (unsigned int i = 0; i < n_users_; i++)
 			    delete [] U_[i];
 			delete [] U_;
 		}
 		if (V_!=NULL){
-			for (int i = 0; i < c_; i++)
+			for (unsigned int i = 0; i < n_items_; i++)
 			    delete [] V_[i];
 			delete [] V_;
 		}
 	}
 
-	void fit(Dataset &ds);
-	double predict(int user, int factor);
-	double* predict(int user);
+	void fit(Dataset &ds, bool bias);
+	double predict(int user, int item);
+	double interaction(int user, int item);
+	double fixed(int user, int item);
 	double* user_f(int user);
 	double* item_f(int item);
 	double mse(vector<pair<pair<int,int>,double>> events);
 	double mae(vector<pair<pair<int,int>,double>> events);
 	double rmse(vector<pair<pair<int,int>,double>> events);
+	bool is_biased();
+	void check_baseline(vector<pair<pair<int,int>,double>> events);
 
 };
 

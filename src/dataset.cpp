@@ -39,15 +39,15 @@ void Dataset::load_ratings(string path, double train_test){
 		}
 
 		int item_i = items_encode_[item];
-		int user_i = users_encode_[user];
+		int usen_users_i = users_encode_[user];
 		int frating = stof(rating);
 
-		count_users_items[user_i]++;
+		count_users_items[usen_users_i]++;
 
-		events_.push_back(make_pair(make_pair(user_i,item_i),frating));
+		events_.push_back(make_pair(make_pair(usen_users_i,item_i),frating));
 	}
 
-	default_random_engine generator;
+	default_random_engine generator{4};
   	bernoulli_distribution distribution(train_test);
 
 	for(auto p : events_){
@@ -86,19 +86,4 @@ vector<pair<pair<int,int>,double>> Dataset::test(){
 
 vector<pair<pair<int,int>,double>> Dataset::train(){
 	return train_;
-}
-
-double Dataset::global_mean(){
-	if (global_mean_ == 0){
-		for(auto ev : train_){
-			global_mean_ += ev.second;
-		}
-		for(auto ev : test_){
-			global_mean_ += ev.second;
-		}
-
-		global_mean_ /= ((float)train_.size() + test_.size());
-	}
-
-	return global_mean_;
 }

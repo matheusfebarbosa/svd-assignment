@@ -16,9 +16,8 @@ private:
 	map<string,int> items_encode_;
 	vector<string> users_;
 	vector<string> items_;
-	int n_items_;
-	int n_users_;
-	double global_mean_;
+	unsigned int n_items_;
+	unsigned int n_users_;
 
 	void init_ratings(int r, int c);
 
@@ -26,7 +25,6 @@ public:
 	Dataset(){
 		n_items_ = 0;
 		n_users_ = 0;
-		global_mean_ = 0;
 	}
 
 	Dataset(string path, double train_test) : Dataset() {
@@ -38,7 +36,6 @@ public:
 	int n_items();
 	int encode_user(string user);
 	int encode_item(string item);
-	double global_mean();
 	vector<pair<pair<int,int>,double>> test();
 	vector<pair<pair<int,int>,double>> train();
 

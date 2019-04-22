@@ -5,9 +5,9 @@
 #include "submission.hpp"
 
 const struct param{
-	const int k = 10;
-	const double lr = 0.001;
-	const double reg = 0.05;
+	const int k = 20;
+	const double lr = 0.005;
+	const double reg = 0.02;
 	const int epochs = 20;
 } param;
 
@@ -31,10 +31,10 @@ int main(int argc, char *argv[]){
 
 	if(argc == 2){
 
-		Dataset ds(argv[1],0.20);
+		Dataset ds(argv[1],0.50);
 		SVD svd(param.k,param.lr, param.reg, param.epochs);
 
-		svd.fit(ds,false);
+		svd.fit(ds,true);
 
 		cerr <<"------------------------------------------------------" << endl;
 		cerr <<"Train RMSE: " << svd.rmse(ds.train()) << endl;

@@ -43,11 +43,12 @@ void SVD::fit(Dataset &ds, bool bias){
 	randomize_matrices();
 
 	generate_global_mean(ds.train());
-	generate_user_bias(ds.train());
-	generate_item_bias(ds.train());
 
 	if(bias){
 		bias_ = true;
+
+		user_bias_.assign(n_users_,0.0);
+		item_bias_.assign(n_items_,0.0);
 	}
 
 	double acc_error;
@@ -64,16 +65,16 @@ void SVD::fit(Dataset &ds, bool bias){
 			double error = real_rating - predict(u,i);
 			acc_error += error * error;
 
+			if(bias){
+				user_bias_[u] += lr_ * (error - reg_ * user_bias_[u]);
+				item_bias_[i] += lr_ * (error - reg_ * item_bias_[i]);
+			}
+
 			for (unsigned int k = 0; k < f_; k++){
 				double uuk = U_[u][k];
 				double vik = V_[i][k];
-				if(bias){
-					U_[u][k] += lr_ * (error * vik - reg_ * (uuk + user_bias_[u])) ;
-					V_[i][k] += lr_ * (error * uuk - reg_ * (vik + item_bias_[i])) ;
-				}else{
-					U_[u][k] += lr_ * (error * vik - reg_ * uuk) ;
-					V_[i][k] += lr_ * (error * uuk - reg_ * vik) ;
-				}
+				U_[u][k] += lr_ * (error * vik - reg_ * uuk) ;
+				V_[i][k] += lr_ * (error * uuk - reg_ * vik) ;
 			}
 		}
 
@@ -97,11 +98,28 @@ double* SVD::item_f(int item){
 
 
 double SVD::predict(int user, int item){
+
+	double prediction = global_mean_;
+
 	if(bias_){
-		return user_bias_[user] + item_bias_[item] + global_mean_ + interaction(user,item);
+		if(user != -1){
+			prediction += user_bias_[user];
+		}
+
+		if(item != -1){
+			prediction += item_bias_[item];
+		}
+
+		if(user != -1 and item != -1){
+			prediction += interaction(user,item);
+		}
 	}else{
-		return interaction(user,item);
+		if(user != -1 and item != -1){
+			prediction = interaction(user,item);
+		}
 	}
+
+	return prediction;
 }
 
 double SVD::fixed(int user, int item){

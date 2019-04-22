@@ -39,15 +39,15 @@ void Dataset::load_ratings(string path, double train_test){
 		}
 
 		int item_i = items_encode_[item];
-		int usen_users_i = users_encode_[user];
+		int user_i = users_encode_[user];
 		int frating = stof(rating);
 
-		count_users_items[usen_users_i]++;
+		count_users_items[user_i]++;
 
-		events_.push_back(make_pair(make_pair(usen_users_i,item_i),frating));
+		events_.push_back(make_pair(make_pair(user_i,item_i),frating));
 	}
 
-	default_random_engine generator{4};
+	default_random_engine generator{42};
   	bernoulli_distribution distribution(train_test);
 
 	for(auto p : events_){
@@ -61,6 +61,8 @@ void Dataset::load_ratings(string path, double train_test){
 		}
 	}
 
+	cerr << "Train, Test: " << train_.size() << ", " << test_.size() << endl;
+
 	input_file.close();
 }
 
@@ -73,11 +75,31 @@ int Dataset::n_items(){
 }
 
 int Dataset::encode_user(string user){
-	return users_encode_[user];
+	if(users_encode_.find(user) == users_encode_.end()){
+		return -1;
+	}
+	int ui = users_encode_[user];
+
+	if(user != users_[ui]){
+		cerr << "panic: user table" << endl;
+		exit(1);
+	}
+
+	return ui;
 }
 
 int Dataset::encode_item(string item){
-	return items_encode_[item];
+	if(items_encode_.find(item) == items_encode_.end()){
+		return -1;
+	}
+	int ii = items_encode_[item];
+	
+	if(item != items_[ii]){
+		cerr << "panic: item table" << endl;
+		exit(1);
+	}
+
+	return ii;
 }
 
 vector<pair<pair<int,int>,double>> Dataset::test(){

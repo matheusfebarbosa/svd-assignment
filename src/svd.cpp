@@ -23,7 +23,7 @@ void SVD::init_matrices(unsigned int r, unsigned int c, unsigned int f){
 void SVD::randomize_matrices(){
 
 	default_random_engine generator;
-	normal_distribution<double> distribution(0,0.1);
+	normal_distribution<double> distribution(0,0.01);
 
 	for (unsigned int i=0; i<n_users_; i++){
 		for (unsigned int j=0; j<f_; j++){
@@ -65,7 +65,7 @@ void SVD::fit(Dataset &ds, bool bias){
 			double error = real_rating - predict(u,i);
 			acc_error += error * error;
 
-			if(bias){
+			if(bias_){
 				user_bias_[u] += lr_ * (error - reg_ * user_bias_[u]);
 				item_bias_[i] += lr_ * (error - reg_ * item_bias_[i]);
 			}

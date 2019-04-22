@@ -5,10 +5,10 @@
 #include "submission.hpp"
 
 const struct param{
-	const int k = 20;
+	const int k = 100;
 	const double lr = 0.005;
-	const double reg = 0.02;
-	const int epochs = 20;
+	const double reg = 0.1;
+	const int epochs = 50;
 } param;
 
 using namespace std;
@@ -31,7 +31,7 @@ int main(int argc, char *argv[]){
 
 	if(argc == 2){
 
-		Dataset ds(argv[1],0.50);
+		Dataset ds(argv[1],0.30);
 		SVD svd(param.k,param.lr, param.reg, param.epochs);
 
 		svd.fit(ds,true);

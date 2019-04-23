@@ -3,7 +3,7 @@
 
 #include "submission.hpp"
 
-void generate_submission(SVD &svd, Dataset ds, string path){
+void generate_submission(SVD *svd, Dataset ds, string path){
 	ifstream input_file;
 	string line;
 
@@ -23,7 +23,7 @@ void generate_submission(SVD &svd, Dataset ds, string path){
 		int i_user = ds.encode_user(user);
 		int i_item = ds.encode_item(item);
 
-		double pred_rating = svd.predict(i_user,i_item);
+		double pred_rating = svd->predict(i_user,i_item);
 
 		cout << user << ":" << item << "," << pred_rating << endl;
 	}

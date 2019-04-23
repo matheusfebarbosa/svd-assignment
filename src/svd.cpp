@@ -23,7 +23,7 @@ void SVD::init_matrices(unsigned int r, unsigned int c, unsigned int f){
 void SVD::randomize_matrices(){
 
 	default_random_engine generator;
-	normal_distribution<double> distribution(0,0.01);
+	normal_distribution<double> distribution(dist_mean_,dist_deviation_);
 
 	for (unsigned int i=0; i<n_users_; i++){
 		for (unsigned int j=0; j<f_; j++){

@@ -6,10 +6,9 @@
 #include <random>
 
 
-void Dataset::load_ratings(string path, double train_test){
+void Dataset::load_ratings(string path){
 	ifstream input_file;
 	string line;
-	vector<pair<pair<int,int>,double>> events_;
 
 	input_file.open(path);
 
@@ -46,22 +45,6 @@ void Dataset::load_ratings(string path, double train_test){
 
 		events_.push_back(make_pair(make_pair(user_i,item_i),frating));
 	}
-
-	default_random_engine generator{42};
-  	bernoulli_distribution distribution(train_test);
-
-	for(auto p : events_){
-		int user = p.first.first;
-		
-		if(distribution(generator) && count_users_items[user] > 3){
-			test_.push_back(p);
-			count_users_items[user]--;
-		}else{
-			train_.push_back(p);
-		}
-	}
-
-	cerr << "Train, Test: " << train_.size() << ", " << test_.size() << endl;
 
 	input_file.close();
 }
@@ -102,10 +85,60 @@ int Dataset::encode_item(string item){
 	return ii;
 }
 
-vector<pair<pair<int,int>,double>> Dataset::test(){
-	return test_;
+string Dataset::get_item(int item){
+	return items_[item];
 }
 
-vector<pair<pair<int,int>,double>> Dataset::train(){
-	return train_;
+string Dataset::get_user(int user){
+	return users_[user];
+}
+
+vector<pair<pair<int,int>,double>> Dataset::events(){
+	return events_;
+}
+
+void Dataset::add_event(pair<pair<string,string>,double> event){
+	string user = event.first.first;
+	string item = event.first.second;
+	double rating = event.second;
+
+	if(users_encode_.find(user) == users_encode_.end()){
+		users_encode_[user] = n_users_++;
+		users_.push_back(user);
+	}
+
+	if(items_encode_.find(item) == items_encode_.end()){
+		items_encode_[item] = n_items_++;
+		items_.push_back(item);
+	}
+
+	int item_i = items_encode_[item];
+	int user_i = users_encode_[user];
+
+	events_.push_back(make_pair(make_pair(user_i,item_i),rating));
+}
+
+vector<Dataset*> k_fold(Dataset *ds, unsigned int k){
+	vector<Dataset*> folds;
+
+	for(unsigned int i=0;i<k;i++){
+		folds.push_back(new Dataset());
+	}
+
+	default_random_engine generator{42};
+  	uniform_int_distribution<int> distribution(0,k-1);
+
+	for(auto p : ds->events()){
+		int u = p.first.first;
+		int i = p.first.second;
+		double rating = p.second;
+
+		string user = ds->get_user(u);
+		string item = ds->get_item(i);
+		int fold = distribution(generator);
+		
+		folds[fold]->add_event(make_pair(make_pair(user,item),rating));
+	}
+
+	return folds;
 }

@@ -6,6 +6,6 @@
 
 #include <string>
 
-void generate_submission(SVD *svd, Dataset ds, string path);
+void generate_submission(SVD *svd, Dataset *ds, string path);
 
 #endif

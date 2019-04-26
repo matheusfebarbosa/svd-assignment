@@ -6,6 +6,17 @@
 #include <random>
 
 void SVD::init_matrices(unsigned int r, unsigned int c, unsigned int f){
+	if(U_!=NULL){
+		for (unsigned int i=0; i<n_users_; i++){
+			delete U_[i];
+		}
+	}
+	if(V_!=NULL){
+		for (unsigned int i=0; i<n_items_; i++){
+			delete V_[i];
+		}
+	}
+
 	U_ = new double*[r];
 	for (unsigned int i=0; i<r; i++){
 		U_[i] = new double[f];
@@ -38,15 +49,15 @@ void SVD::randomize_matrices(){
 	}
 }
 
-void SVD::fit(Dataset &ds, bool bias){
-	init_matrices(ds.n_users(),ds.n_items(),f_);
+void SVD::fit(Dataset *ds, bool verbose=true){
+	ds_ = ds;
+
+	init_matrices(ds->n_users(),ds->n_items(),f_);
 	randomize_matrices();
 
-	generate_global_mean(ds.train());
+	generate_global_mean(ds->events());
 
-	if(bias){
-		bias_ = true;
-
+	if(bias_){
 		user_bias_.assign(n_users_,0.0);
 		item_bias_.assign(n_items_,0.0);
 	}
@@ -57,7 +68,7 @@ void SVD::fit(Dataset &ds, bool bias){
 		
 		acc_error = 0;
 
-		for(auto ev : ds.train()){
+		for(auto ev : ds->events()){
 			pair<int,int> ui = ev.first;
 			double real_rating = ev.second;
 			int u = ui.first, i = ui.second;
@@ -78,14 +89,15 @@ void SVD::fit(Dataset &ds, bool bias){
 			}
 		}
 
-		if (!(it%(epochs_/10))){
+		if (verbose and !(it%(epochs_/10))){
 			cerr << "Epoch #" << it << endl;
-			cerr << "MSE: " << acc_error/ds.train().size() << endl;
+			cerr << "MSE: " << acc_error/ds->events().size() << endl;
 		}
 	}
-
-	cerr << "Final" << endl;
-	cerr << "MSE: " << acc_error/ds.train().size() << endl;
+	if(verbose){
+		cerr << "Final" << endl;
+		cerr << "MSE: " << acc_error/ds->events().size() << endl;
+	}
 }
 
 double* SVD::user_f(int user){
@@ -137,7 +149,6 @@ void SVD::generate_global_mean(vector<pair<pair<int,int>,double>> events){
 	}
 
 	global_mean_ /= ((double)events.size());
-	cerr << "Global mean: " << global_mean_ << endl;
 }
 
 void SVD::generate_item_bias(vector<pair<pair<int,int>,double>> events){
@@ -182,39 +193,45 @@ bool SVD::is_biased(){
 	return bias_;
 }
 
-double SVD::mse(vector<pair<pair<int,int>,double>> events){
+double SVD::mse(Dataset *ds){
 	double acn_items_error = 0;
 
-	for(auto ev : events){
+	for(auto ev : ds->events()){
 		pair<int,int> ui = ev.first;
 		int u = ui.first, i = ui.second;
 		double rating = ev.second;
 
-		double error = rating - predict(u,i);
+		int user = ds_->encode_user(ds->get_user(u));
+		int item = ds_->encode_item(ds->get_item(i));
+
+		double error = rating - predict(user,item);
 		acn_items_error += error * error;
 	}
 
-	return acn_items_error/events.size();
+	return acn_items_error/ds->events().size();
 }
 
 
-double SVD::mae(vector<pair<pair<int,int>,double>> events){
+double SVD::mae(Dataset *ds){
 	double acn_items_error = 0;
 
-	for(auto ev : events){
+	for(auto ev : ds->events()){
 		pair<int,int> ui = ev.first;
 		int u = ui.first, i = ui.second;
 		double rating = ev.second;
 
-		double error = rating - predict(u,i);
+		int user = ds_->encode_user(ds->get_user(u));
+		int item = ds_->encode_item(ds->get_item(i));
+
+		double error = rating - predict(user,item);
 		acn_items_error += fabs(error);
 	}
 
-	return acn_items_error/events.size();
+	return acn_items_error/ds->events().size();
 }
 
-double SVD::rmse(vector<pair<pair<int,int>,double>> events){
-	return sqrt(mse(events));
+double SVD::rmse(Dataset *ds){
+	return sqrt(mse(ds));
 }
 
 void SVD::check_baseline(vector<pair<pair<int,int>,double>> events){

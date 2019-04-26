@@ -11,6 +11,7 @@ using namespace std;
 class SVD{
 
 private:
+	Dataset *ds_;
 	//matrices
 	double **U_;
 	double **V_;
@@ -39,8 +40,8 @@ private:
 
 public:
 
-	SVD(unsigned int n_factors = 100, double lr_m = 0.005, double lr_b = 0.005, double reg = 0.1, 
-		double dist_mean = 0, double dist_deviation = 0.01, unsigned int epochs = 50){
+	SVD(unsigned int n_factors = 100,double reg = 0.1, double lr_m = 0.005, double dist_mean = 0, 
+		double dist_deviation = 0.01, unsigned int epochs = 50, bool bias=true, double lr_b = 0.005){
 		U_ = NULL;
 		V_ = NULL;
 		f_ = n_factors;
@@ -50,6 +51,7 @@ public:
 		epochs_ = epochs;
 		dist_mean_ = dist_mean;
 		dist_deviation_ = dist_deviation;
+		bias_ = bias;
 	}
 
 	~SVD(){
@@ -67,15 +69,15 @@ public:
 		item_bias_.clear();
 	}
 
-	void fit(Dataset &ds, bool bias);
+	void fit(Dataset *ds, bool verbose);
 	double predict(int user, int item);
 	double interaction(int user, int item);
 	double fixed(int user, int item);
 	double* user_f(int user);
 	double* item_f(int item);
-	double mse(vector<pair<pair<int,int>,double>> events);
-	double mae(vector<pair<pair<int,int>,double>> events);
-	double rmse(vector<pair<pair<int,int>,double>> events);
+	double mse(Dataset *ds);
+	double mae(Dataset *ds);
+	double rmse(Dataset *ds);
 	bool is_biased();
 	void check_baseline(vector<pair<pair<int,int>,double>> events);
 

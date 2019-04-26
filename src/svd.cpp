@@ -66,15 +66,15 @@ void SVD::fit(Dataset &ds, bool bias){
 			acc_error += error * error;
 
 			if(bias_){
-				user_bias_[u] += lr_ * (error - reg_ * user_bias_[u]);
-				item_bias_[i] += lr_ * (error - reg_ * item_bias_[i]);
+				user_bias_[u] += lr_b_ * (error - reg_ * user_bias_[u]);
+				item_bias_[i] += lr_b_ * (error - reg_ * item_bias_[i]);
 			}
 
 			for (unsigned int k = 0; k < f_; k++){
 				double uuk = U_[u][k];
 				double vik = V_[i][k];
-				U_[u][k] += lr_ * (error * vik - reg_ * uuk) ;
-				V_[i][k] += lr_ * (error * uuk - reg_ * vik) ;
+				U_[u][k] += lr_m_ * (error * vik - reg_ * uuk) ;
+				V_[i][k] += lr_m_ * (error * uuk - reg_ * vik) ;
 			}
 		}
 

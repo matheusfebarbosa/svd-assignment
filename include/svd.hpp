@@ -20,7 +20,8 @@ private:
 	double dist_mean_;
 	double dist_deviation_;
 	//training parameters
-	double lr_;
+	double lr_m_;
+	double lr_b_;
 	double reg_;
 	int epochs_;
 	//self bias
@@ -38,12 +39,13 @@ private:
 
 public:
 
-	SVD(unsigned int n_factors = 100, double lr = 0.005, double reg = 0.1, double dist_mean = 0, 
-		double dist_deviation = 0.01, unsigned int epochs = 50){
+	SVD(unsigned int n_factors = 100, double lr_m = 0.005, double lr_b = 0.005, double reg = 0.1, 
+		double dist_mean = 0, double dist_deviation = 0.01, unsigned int epochs = 50){
 		U_ = NULL;
 		V_ = NULL;
 		f_ = n_factors;
-		lr_ = lr;
+		lr_m_ = lr_m;
+		lr_b_ = lr_b;
 		reg_ = reg;
 		epochs_ = epochs;
 		dist_mean_ = dist_mean;

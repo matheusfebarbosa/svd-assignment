@@ -25,6 +25,12 @@ void generate_submission(SVD *svd, Dataset ds, string path){
 
 		double pred_rating = svd->predict(i_user,i_item);
 
+		if (pred_rating > 10){
+			pred_rating = 10;
+		}else if (pred_rating < 0){
+			pred_rating = 0;
+		}
+
 		cout << user << ":" << item << "," << pred_rating << endl;
 	}
 }

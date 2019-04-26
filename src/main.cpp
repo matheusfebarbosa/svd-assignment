@@ -8,13 +8,16 @@
 
 const struct param{
 	const int k = 100;
-	const double lr = 0.005;
+	const double lr_m = 0.005;
+	const double lr_b = 0.0045;
 	const double reg = 0.1;
 	const int epochs = 50;
 	const double dist_mean = 0;
 	const double dist_deviation = 0.01;
 	const double test_ratio = 0.3;
 } param;
+
+
 
 using namespace std;
 
@@ -41,7 +44,7 @@ int main(int argc, char *argv[]){
 		SVD *svd;
 
 		if(USE_CUSTOM){
-			svd = new SVD(param.k,param.lr, param.reg, 
+			svd = new SVD(param.k,param.lr_m, param.lr_b,param.reg, 
 				param.dist_mean, param.dist_deviation, param.epochs);
 		}else{
 			svd = new SVD();
@@ -72,7 +75,7 @@ int main(int argc, char *argv[]){
 		SVD *svd;
 		
 		if(USE_CUSTOM){
-			svd = new SVD(param.k,param.lr, param.reg, 
+			svd = new SVD(param.k, param.lr_m, param.lr_b, param.reg, 
 				param.dist_mean, param.dist_deviation, param.epochs);
 		}else{
 			svd = new SVD();

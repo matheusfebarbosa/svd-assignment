@@ -3,24 +3,23 @@
 #include "svd.hpp"
 #include "dataset.hpp"
 #include "submission.hpp"
+#include "evaluate.hpp"
 
 #define USE_CUSTOM true
-#define VERBOSE_TRAIN true
+#define VERBOSE_TRAIN false
+#define VERBOSE_EVAL true
 #define N_FOLDS 5
 
 const struct param{
-	const int k = 30;
+	const int k = 20;
 	const double lr_m = 0.005;
 	const double lr_b = 0.0045;
-	const double reg = 0.1;
+	const double reg = 0.05;
 	const int epochs = 20;
-	const double dist_mean = 0;
+	const double dist_mean = 0.00;
 	const double dist_deviation = 0.01;
-	const double test_ratio = 0.3;
 	const bool bias = true;
 } param;
-
-
 
 using namespace std;
 
@@ -48,49 +47,22 @@ int main(int argc, char *argv[]){
 
 		if(USE_CUSTOM){
 			svd = new SVD(param.k, param.reg, param.lr_m, param.dist_mean, 
-				param.dist_deviation, param.epochs, param.bias,param.lr_b);
+				param.dist_deviation, param.epochs, param.bias,param.lr_b,VERBOSE_TRAIN);
 		}else{
 			svd = new SVD();
 		}
 
-
 		cerr <<"------------------------------------------------------" << endl;
 		cerr <<"Validating model..." << endl;
-		cerr <<"Number of Folds: " << N_FOLDS << endl;
+		
+		double mean_rmse = k_fold_evaluate(svd, ds, N_FOLDS, VERBOSE_EVAL);
 
-		vector<Dataset*> folds = k_fold(ds,N_FOLDS);
-		double mean_rmse = 0;
-
-		cerr << "Folds generated!!!" << endl;
-
-		for(int i = 0; i<N_FOLDS; i++){
-			cerr << "size(fold[" << i << "]) -> " << folds[i]->events().size() << endl;
-		}
-
-		cerr <<"------------------------------------------------------" << endl;
-
-		for(int i = 0; i<N_FOLDS; i++){
-			for(int j = 0; j<N_FOLDS; j++){
-				if(i!=j){
-					svd->fit(folds[i],false);
-
-					double rmse = svd->rmse(folds[j]);
-
-					mean_rmse += rmse;
-
-					cerr << "Run " << i << "->" << j << ";" << endl;
-					cerr << "RMSE " << rmse << endl;
- 				}
-			}
-		}
-
-		mean_rmse /= N_FOLDS*(N_FOLDS-1);
-
-		cerr <<"------------------------------------------------------" << endl;
 		cerr <<"Test Finished!!!" << endl;
 		cerr <<"Mean RMSE: " << mean_rmse << endl;
+		cerr <<"------------------------------------------------------" << endl;
 
 		delete svd;
+		delete ds;
 
 	} else if (argc >= 3) {
 
@@ -100,16 +72,17 @@ int main(int argc, char *argv[]){
 		
 		if(USE_CUSTOM){
 			svd = new SVD(param.k, param.reg, param.lr_m, param.dist_mean, 
-				param.dist_deviation, param.epochs, param.bias,param.lr_b);
+				param.dist_deviation, param.epochs, param.bias,param.lr_b,VERBOSE_TRAIN);
 		}else{
 			svd = new SVD();
 		}
 
-		svd->fit(ds,VERBOSE_TRAIN);
+		svd->fit(ds);
 
 		generate_submission(svd, ds, argv[2]);
 
 		delete svd;
+		delete ds;
 	}
 	
 	return 0;

@@ -49,7 +49,7 @@ void SVD::randomize_matrices(){
 	}
 }
 
-void SVD::fit(Dataset *ds, bool verbose=true){
+void SVD::fit(Dataset *ds){
 	ds_ = ds;
 
 	init_matrices(ds->n_users(),ds->n_items(),f_);
@@ -63,6 +63,11 @@ void SVD::fit(Dataset *ds, bool verbose=true){
 	}
 
 	double acc_error;
+
+	if(verbose_){
+		cerr <<"-----------------------------" << endl;
+		cerr <<"Started training..." << endl;
+	}
 
 	for(int it = 0; it < epochs_; it++){
 		
@@ -89,14 +94,15 @@ void SVD::fit(Dataset *ds, bool verbose=true){
 			}
 		}
 
-		if (verbose and !(it%(epochs_/10))){
+		if (verbose_ and !(it%(epochs_/10))){
 			cerr << "Epoch #" << it << endl;
 			cerr << "MSE: " << acc_error/ds->events().size() << endl;
 		}
 	}
-	if(verbose){
+	if(verbose_){
 		cerr << "Final" << endl;
 		cerr << "MSE: " << acc_error/ds->events().size() << endl;
+		cerr <<"-----------------------------" << endl;
 	}
 }
 

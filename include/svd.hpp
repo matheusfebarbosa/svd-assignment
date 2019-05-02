@@ -30,6 +30,8 @@ private:
 	vector<double> user_bias_;
 	vector<double> item_bias_;
 	double global_mean_;
+	//verbose train
+	bool verbose_;
 
 
 	void init_matrices(unsigned int r, unsigned int c, unsigned int f);
@@ -41,7 +43,8 @@ private:
 public:
 
 	SVD(unsigned int n_factors = 100,double reg = 0.1, double lr_m = 0.005, double dist_mean = 0, 
-		double dist_deviation = 0.01, unsigned int epochs = 50, bool bias=true, double lr_b = 0.005){
+		double dist_deviation = 0.01, unsigned int epochs = 50, bool bias=true, double lr_b = 0.005,
+		bool verbose = true){
 		U_ = NULL;
 		V_ = NULL;
 		f_ = n_factors;
@@ -52,6 +55,7 @@ public:
 		dist_mean_ = dist_mean;
 		dist_deviation_ = dist_deviation;
 		bias_ = bias;
+		verbose_ = verbose;
 	}
 
 	~SVD(){
@@ -69,7 +73,7 @@ public:
 		item_bias_.clear();
 	}
 
-	void fit(Dataset *ds, bool verbose);
+	void fit(Dataset *ds);
 	double predict(int user, int item);
 	double interaction(int user, int item);
 	double fixed(int user, int item);

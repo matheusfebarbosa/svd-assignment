@@ -42,6 +42,7 @@ public:
 };
 
 //utils
-vector<Dataset*> k_fold(Dataset *ds, unsigned int k);
+Dataset* merge_datasets(Dataset *ds1,Dataset *ds2);
+Dataset* merge_datasets(vector<Dataset*> vds);
 
 #endif

@@ -6,7 +6,7 @@ BUILD=$(PWD)/build
 SRC=$(PWD)/src
 INCLUDE=$(PWD)/include
 CFLAGS=-lm -Wall -Wextra -std=c++1z -pedantic
-TARGETS=dataset.o svd.o main.o linalg.o submission.o
+TARGETS=dataset.o svd.o main.o linalg.o submission.o evaluate.o
 INCLUDES=-I/usr/local/include -Ia -Ib -Ic -I$(INCLUDE)
 
 all: config tp
@@ -32,6 +32,8 @@ submission.o: $(SRC)/submission.*
 	$(CC) -c $(SRC)/submission.cpp -o $(BUILD)/submission.o $(CFLAGS) $(INCLUDES)
 linalg.o: $(SRC)/linalg.*
 	$(CC) -c $(SRC)/linalg.cpp -o $(BUILD)/linalg.o $(CFLAGS) $(INCLUDES)
+evaluate.o: $(SRC)/evaluate.*
+	$(CC) -c $(SRC)/evaluate.cpp -o $(BUILD)/evaluate.o $(CFLAGS) $(INCLUDES)
 clean:
 	$(RM) -r $(BUILD) $(EXEC)
 

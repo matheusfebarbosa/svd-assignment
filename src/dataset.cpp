@@ -118,27 +118,46 @@ void Dataset::add_event(pair<pair<string,string>,double> event){
 	events_.push_back(make_pair(make_pair(user_i,item_i),rating));
 }
 
-vector<Dataset*> k_fold(Dataset *ds, unsigned int k){
-	vector<Dataset*> folds;
+Dataset* merge_datasets(Dataset *ds1,Dataset *ds2){
+	Dataset *newds = new Dataset();
 
-	for(unsigned int i=0;i<k;i++){
-		folds.push_back(new Dataset());
-	}
-
-	default_random_engine generator{42};
-  	uniform_int_distribution<int> distribution(0,k-1);
-
-	for(auto p : ds->events()){
+	for(auto p : ds1->events()){
 		int u = p.first.first;
 		int i = p.first.second;
 		double rating = p.second;
 
-		string user = ds->get_user(u);
-		string item = ds->get_item(i);
-		int fold = distribution(generator);
+		string user = ds1->get_user(u);
+		string item = ds1->get_item(i);
 		
-		folds[fold]->add_event(make_pair(make_pair(user,item),rating));
+		newds->add_event(make_pair(make_pair(user,item),rating));
 	}
 
-	return folds;
+	for(auto p : ds2->events()){
+		int u = p.first.first;
+		int i = p.first.second;
+		double rating = p.second;
+
+		string user = ds2->get_user(u);
+		string item = ds2->get_item(i);
+		
+		newds->add_event(make_pair(make_pair(user,item),rating));
+	}
+
+	return newds;
+}
+
+Dataset* merge_datasets(vector<Dataset*> vds){
+	if(vds.size() == 1){
+		return NULL;
+	}
+
+	Dataset *newds = merge_datasets(vds[0],vds[1]);
+	
+	for(unsigned int i = 2; i<vds.size(); i++){
+		Dataset *aux = merge_datasets(newds,vds[i]);
+		delete newds;
+		newds = aux;
+	}
+
+	return newds;
 }

@@ -11,11 +11,11 @@
 #define N_FOLDS 5
 
 const struct param{
-	const int k = 20;
+	const int k = 300;
 	const double lr_m = 0.005;
-	const double lr_b = 0.0045;
-	const double reg = 0.05;
-	const int epochs = 20;
+	const double lr_b = 0.005;
+	const double reg = 0.1;
+	const int epochs = 50;
 	const double dist_mean = 0.00;
 	const double dist_deviation = 0.01;
 	const bool bias = true;

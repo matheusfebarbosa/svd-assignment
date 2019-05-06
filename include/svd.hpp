@@ -36,8 +36,6 @@ private:
 
 	void init_matrices(unsigned int r, unsigned int c, unsigned int f);
 	void generate_global_mean(vector<pair<pair<int,int>,double>> events);
-	void generate_user_bias(vector<pair<pair<int,int>,double>> events);
-	void generate_item_bias(vector<pair<pair<int,int>,double>> events);
 	void randomize_matrices();
 
 public:
@@ -77,14 +75,10 @@ public:
 	double predict(int user, int item);
 	double interaction(int user, int item);
 	double fixed(int user, int item);
-	double* user_f(int user);
-	double* item_f(int item);
 	double mse(Dataset *ds);
 	double mae(Dataset *ds);
 	double rmse(Dataset *ds);
-	bool is_biased();
-	void check_baseline(vector<pair<pair<int,int>,double>> events);
-
+	
 };
 
 #endif

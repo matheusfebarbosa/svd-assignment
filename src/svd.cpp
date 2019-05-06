@@ -106,15 +106,6 @@ void SVD::fit(Dataset *ds){
 	}
 }
 
-double* SVD::user_f(int user){
-	return U_[user];
-}
-
-double* SVD::item_f(int item){
-	return V_[item];
-}
-
-
 double SVD::predict(int user, int item){
 
 	double prediction = global_mean_;
@@ -140,10 +131,6 @@ double SVD::predict(int user, int item){
 	return prediction;
 }
 
-double SVD::fixed(int user, int item){
-	return user_bias_[user] + item_bias_[item] + global_mean_;
-}
-
 double SVD::interaction(int user, int item){
 	return dot_product(U_[user],V_[item],f_);
 }
@@ -155,48 +142,6 @@ void SVD::generate_global_mean(vector<pair<pair<int,int>,double>> events){
 	}
 
 	global_mean_ /= ((double)events.size());
-}
-
-void SVD::generate_item_bias(vector<pair<pair<int,int>,double>> events){
-	if(item_bias_.size() < n_items_){
-		item_bias_.resize(n_items_);
-	}
-
-	map<int,int> count_ratings;
-
-	for(auto ev : events){
-		int item = ev.first.second;
-		int rating = ev.second;
-		count_ratings[item]++;
-		item_bias_[item] += rating - global_mean_;
-	}
-
-	for(auto i : count_ratings){
-		item_bias_[i.first] /= i.second;
-	}
-}
-
-void SVD::generate_user_bias(vector<pair<pair<int,int>,double>> events){
-	if(user_bias_.size() < n_users_){
-		user_bias_.resize(n_users_);
-	}
-
-	map<int,int> count_ratings;
-
-	for(auto ev : events){
-		int user = ev.first.first;
-		int rating = ev.second;
-		count_ratings[user]++;
-		user_bias_[user] += rating - global_mean_;
-	}
-
-	for(auto i : count_ratings){
-		user_bias_[i.first] /= i.second;
-	}
-}
-
-bool SVD::is_biased(){
-	return bias_;
 }
 
 double SVD::mse(Dataset *ds){
@@ -216,7 +161,6 @@ double SVD::mse(Dataset *ds){
 
 	return acn_items_error/ds->events().size();
 }
-
 
 double SVD::mae(Dataset *ds){
 	double acn_items_error = 0;
@@ -238,20 +182,4 @@ double SVD::mae(Dataset *ds){
 
 double SVD::rmse(Dataset *ds){
 	return sqrt(mse(ds));
-}
-
-void SVD::check_baseline(vector<pair<pair<int,int>,double>> events){
-	double acn_items_error = 0;
-
-	for(auto ev : events){
-		pair<int,int> ui = ev.first;
-		int u = ui.first, i = ui.second;
-		double rating = ev.second;
-
-		double error = rating - fixed(u,i);
-		acn_items_error += error * error;
-	}
-
-	cerr <<"RMSE: " << sqrt(acn_items_error/events.size()) << endl;
-	cerr <<"MSE: " << acn_items_error/events.size() << endl;
 }
